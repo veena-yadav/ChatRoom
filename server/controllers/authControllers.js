@@ -5,6 +5,11 @@ const alertError =(err)=>{
     // console.log(`error meaasge: ${err.message}`)
     // console.log(`error code: ${err.code}`)
     // console.log(err);
+    if(err.code === 11000){
+        errors.email= 'This email already exist'
+        return errors;
+    }
+
     if(err.message.includes('user validation failed')){
         console.log(Object.values(err.errors).forEach(({properties}) =>{
             // console.log(properties)

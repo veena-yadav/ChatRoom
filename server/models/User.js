@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const {isEmail}= require('validator')
+const {isEmail}= require('validator');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
     name:{
@@ -19,6 +20,16 @@ const userSchema = new mongoose.Schema({
         minlength: [6, 'password should be grater then 6 digits']
     }
 })
+// bcrypt is using to hide password
+userSchema.pre('save', async function (next) {
+    const salt = await bcrypt.genSalt();
+    this.password = await bcrypt.hash(this.password, salt);
 
+    next()
+})
+// userSchema.post('save', function(doc, next){
+//     console.log('after save', doc)
+//     next()
+// })
 const User = mongoose.model('user', userSchema)
 module.exports = User;
