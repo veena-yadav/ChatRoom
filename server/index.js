@@ -1,18 +1,42 @@
 const express = require('express');
 const app = express();
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
+
+var corsOptions = {
+    origin: 'http://localhost:3000',
+    credentials: true,
+    optionsSuccessStatus: 200 // For legacy browser support
+}
 const authRoutes = require('./routes/authRoutes')
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(authRoutes)
+app.use(cookieParser())
+
+
 const http = require('http').createServer(app);
 const mongoose =require('mongoose')
 const socketio = require('socket.io')
 const io = socketio(http);
 const mongodb = 'mongodb+srv://veenayadav:PvYuZXtuseCRMfeF@cluster0.8nx3l.mongodb.net/chat-room?retryWrites=true&w=majority'
 mongoose.connect(mongodb,{ useNewUrlParser: true, useUnifiedTopology: true }).then(()=>console.log('connected to database')).catch(err=> console.log(err))
+
 const {addUser, getUser, removeUser} = require('./helper');
 const Message = require('./models/Message');
 const PORT = process.env.PORT || 5000
 const Room = require('./models/Room')
+
+app.get('/set-cookies', (req, res) => {
+    res.cookie('username', 'Tony');
+    res.cookie('isAuthenticated', true, { maxAge: 24 * 60 * 60 * 1000 });
+    res.send('cookies are set');
+})
+app.get('/get-cookies', (req, res) => {
+    const cookies = req.cookies;
+    console.log(cookies);
+    res.json(cookies);
+})
 
 io.on('connection', (socket) => {
     console.log(socket.id);
